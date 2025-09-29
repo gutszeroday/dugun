@@ -22,7 +22,7 @@ export default function GalleryPage() {
     const { data, error } = await supabase.storage
       .from("photos")
       .list("", {
-        limit: pageSize + 1, // bir fazla al ki sonraki var mı anlaşılsın
+        limit: pageSize + 1,
         offset: page * pageSize,
         sortBy: { column: "created_at", order: "desc" },
       });
@@ -120,22 +120,15 @@ export default function GalleryPage() {
         }}
       >
         {photos.map((url, idx) => (
-          <div
-            key={idx}
-            style={{
-              borderRadius: "10px",
-              overflow: "hidden",
-              aspectRatio: "1/1", // kare görünüm
-            }}
-          >
+          <div key={idx} style={{ borderRadius: "10px", overflow: "hidden" }}>
             <img
               src={url}
               alt="Wedding"
               style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover", // siyah boşluk bırakmaz
+                maxWidth: "100%",
+                height: "auto",
                 display: "block",
+                borderRadius: "8px",
               }}
             />
           </div>
