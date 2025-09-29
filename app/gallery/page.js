@@ -15,13 +15,14 @@ export default function GalleryPage() {
   const [page, setPage] = useState(0);
   const [authenticated, setAuthenticated] = useState(false);
   const [inputPassword, setInputPassword] = useState("");
+  const [hasMore, setHasMore] = useState(true); // daha fazla fotoğraf var mı
   const pageSize = 10;
 
   const fetchPhotos = async () => {
     const { data, error } = await supabase.storage
       .from("photos")
       .list("", {
-        limit: pageSize,
+        limit: pageSize + 1, // bir fazla al, daha var mı diye anlamak için
         offset: page * pageSize,
         sortBy: { column: "created_at", order: "desc" },
       });
@@ -31,7 +32,11 @@ export default function GalleryPage() {
       return;
     }
 
-    const urls = data.map((file) =>
+    // Eğer gelen data pageSize'tan fazla ise sonraki sayfa var demektir
+    setHasMore(data.length > pageSize);
+
+    const visibleData = data.slice(0, pageSize);
+    const urls = visibleData.map((file) =>
       supabase.storage.from("photos").getPublicUrl(file.name).data.publicUrl
     );
 
@@ -61,7 +66,7 @@ export default function GalleryPage() {
       >
         <h1 style={{ color: "#f2c14e", marginBottom: "1rem" }}>🔒 Galeri Girişi</h1>
         <input
-          type="password"
+          type="text" // artık sansür yok
           placeholder="Şifreyi girin"
           value={inputPassword}
           onChange={(e) => setInputPassword(e.target.value)}
@@ -133,11 +138,34 @@ export default function GalleryPage() {
         ))}
       </div>
 
+      {/* Sayfalama */}
       <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
-        <button disabled={page === 0} onClick={() => setPage(page - 1)}>
+        <button
+          disabled={page === 0}
+          onClick={() => setPage(page - 1)}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: "8px",
+            border: "none",
+            background: page === 0 ? "#444" : "#f2c14e",
+            cursor: page === 0 ? "not-allowed" : "pointer",
+          }}
+        >
           ⬅ Önceki
         </button>
-        <button onClick={() => setPage(page + 1)}>Sonraki ➡</button>
+        <button
+          disabled={!hasMore}
+          onClick={() => setPage(page + 1)}
+          style={{
+            padding: "0.5rem 1rem",
+            borderRadius: "8px",
+            border: "none",
+            background: hasMore ? "#f2c14e" : "#444",
+            cursor: hasMore ? "pointer" : "not-allowed",
+          }}
+        >
+          Sonraki ➡
+        </button>
       </div>
     </div>
   );
