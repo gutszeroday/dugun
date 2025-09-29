@@ -35,7 +35,7 @@ export default function WeddingUpload() {
 
         const { error } = await supabase.storage
           .from("photos")
-          .upload(`photos/${fileName}`, compressed, {
+          .upload(fileName, compressed, {
             contentType: file.type,
             cacheControl: "3600",
             upsert: false,
