@@ -15,14 +15,14 @@ export default function GalleryPage() {
   const [page, setPage] = useState(0);
   const [authenticated, setAuthenticated] = useState(false);
   const [inputPassword, setInputPassword] = useState("");
-  const [hasMore, setHasMore] = useState(true); // daha fazla fotoğraf var mı
+  const [hasMore, setHasMore] = useState(true);
   const pageSize = 10;
 
   const fetchPhotos = async () => {
     const { data, error } = await supabase.storage
       .from("photos")
       .list("", {
-        limit: pageSize + 1, // bir fazla al, daha var mı diye anlamak için
+        limit: pageSize + 1, // bir fazla al ki sonraki var mı anlaşılsın
         offset: page * pageSize,
         sortBy: { column: "created_at", order: "desc" },
       });
@@ -32,7 +32,6 @@ export default function GalleryPage() {
       return;
     }
 
-    // Eğer gelen data pageSize'tan fazla ise sonraki sayfa var demektir
     setHasMore(data.length > pageSize);
 
     const visibleData = data.slice(0, pageSize);
@@ -49,7 +48,7 @@ export default function GalleryPage() {
     }
   }, [page, authenticated]);
 
-  // Şifre ekranı
+  // 🔐 Şifre ekranı
   if (!authenticated) {
     return (
       <div
@@ -66,7 +65,7 @@ export default function GalleryPage() {
       >
         <h1 style={{ color: "#f2c14e", marginBottom: "1rem" }}>🔒 Galeri Girişi</h1>
         <input
-          type="text" // artık sansür yok
+          type="text"
           placeholder="Şifreyi girin"
           value={inputPassword}
           onChange={(e) => setInputPassword(e.target.value)}
@@ -101,7 +100,7 @@ export default function GalleryPage() {
     );
   }
 
-  // Galeri
+  // 📷 Galeri ekranı
   return (
     <div
       style={{
@@ -124,15 +123,20 @@ export default function GalleryPage() {
           <div
             key={idx}
             style={{
-              background: "#000",
               borderRadius: "10px",
               overflow: "hidden",
+              aspectRatio: "1/1", // kare görünüm
             }}
           >
             <img
               src={url}
               alt="Wedding"
-              style={{ width: "100%", display: "block" }}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover", // siyah boşluk bırakmaz
+                display: "block",
+              }}
             />
           </div>
         ))}
